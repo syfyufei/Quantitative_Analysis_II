@@ -51,3 +51,38 @@ plot_p16 <- ggplot(data, aes(mom_iq, kid_score,
   xlab('Mother IQ scores') +
   theme(legend.position = 'none')
 plot_p16
+
+# p25
+normalize <- function(x){
+  norm_x <- (x - mean(x)) / sd(x)
+  return(norm_x)
+}
+
+s_mom_iq <- sd(mom_iq)
+data$stdmom_iq <- normalize(mom_iq)
+s_mom_hs  <-  sd(mom_hs)
+data$stdmom_hs <- normalize(mom_hs)
+s_kid_score <- sd(kid_score)
+data$stdkid_score <- normalize(kid_score)
+
+reg_p25 <- lm(stdkid_score ~ stdmom_iq + stdmom_hs + stdmom_iq:stdmom_hs )
+summary(reg_p25)
+# stargazer(reg_p25, type = 'text')
+
+# p27
+data$std2mom_iq <- cmom_iq / (2*s_mom_iq)
+data$std2mom_hs <- cmom_hs/(2*s_mom_hs)
+data$std2momiqhs <- std2mom_iq*std2mom_hs
+
+reg_p27 <- lm(kid_score ~ std2mom_iq + std2mom_hs + std2momiqhs)
+summary(reg_p27)
+
+# p33
+reg_p33 <- lm(kid_score ~ log(mom_iq) + mom_hs)
+summary(reg_p33)
+# stargazer(reg_p33, type = 'text')
+
+# p37
+reg_p37 <- lm(kid_score ~ as.character(mom_work))
+summary(reg_p37)
+# stargazer(reg_p37, type = 'text')
