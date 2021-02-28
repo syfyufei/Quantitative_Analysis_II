@@ -28,7 +28,8 @@ plot_p10 <- ggplot(data, aes(as.character(data$mom_hs), kid_score)) +
   ylab('Child test scores') +
   xlab('Mother completed high school') +
   xlim(c(-0.2, 1.2)) +
-  scale_x_discrete(labels = c('1' = "Yes",'0' = "No"))
+  scale_x_discrete(labels = c('1' = "Yes",'0' = "No"))+
+  geom_smooth(method = lm, se = FALSE)
 plot_p10
 
 # p14
@@ -43,7 +44,9 @@ plot_p16 <- ggplot(data, aes(mom_iq, kid_score,
   geom_hline(aes(yintercept = 50), color = 'grey90' ) +
   geom_hline(aes(yintercept = 100), color = 'grey90' ) +
   geom_point() + 
-  geom_smooth(method = lm, se = FALSE) +
+  geom_smooth(aes(mom_iq, kid_score, color = as.character(data$mom_hs)),
+              formula = y ~ x,
+              method = lm, se = FALSE) +
   theme_cowplot() +
   scale_color_manual(values = c("black" ,"red")) +
   scale_shape_manual(values = c(1, 19)) +
@@ -54,8 +57,7 @@ plot_p16
 
 # p25
 normalize <- function(x){
-  temp <- (x - mean(x))
-  norm_x <- temp / sd(x)
+  norm_x <- (x - mean(x))
   return(norm_x)
 }
 
@@ -66,6 +68,14 @@ data$stdmom_hs <- normalize(mom_hs)
 reg_p25 <- lm(kid_score ~ stdmom_iq + stdmom_hs + I(stdmom_iq*stdmom_hs), data = data)
 summary(reg_p25)
 # stargazer(reg_p25, type = 'text')
+
+
+
+data$cmom_iq <- mom_iq - mean(mom_iq)
+data$cmom_hs <- mom_hs - mean(mom_hs)
+
+reg_p25 <- lm(kid_score ~ cmom_iq + cmom_hs + I(cmom_iq*cmom_hs))
+summary(reg_p25)
 
 # p27
 normalize2 <- function(x){
@@ -86,7 +96,7 @@ reg_p33 <- lm(kid_score ~ log(mom_iq) + mom_hs)
 summary(reg_p33)
 # stargazer(reg_p33, type = 'text')
 
-# p37
-reg_p37 <- lm(kid_score ~ as.character(mom_work))
-summary(reg_p37)
-# stargazer(reg_p37, type = 'text')
+# p39
+reg_p39 <- lm(kid_score ~ as.character(mom_work))
+summary(reg_p39)
+# stargazer(reg_p39, type = 'text')
