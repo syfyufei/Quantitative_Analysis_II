@@ -31,6 +31,7 @@ mydata <- mydata %>% mutate( cpcer = ifelse(a10 == '共产党员', TRUE, FALSE))
 
 mydata <- mydata[, c('a8a', 'a49', 'cpcer', 'protest')]
 names(mydata) <- c('income', 'nation_lan', 'cpcer', 'protest')
+# mydata$income <- log(as.numeric(mydata$income)+1)
 mydata$income <- as.numeric(mydata$income)
 
 #-----------1.4---------
@@ -76,7 +77,7 @@ curve(invlogit(coef(m1)[1] + coef(m1)[2] * x + coef(m1)[3] * TRUE + coef(m1)[4] 
 curve(invlogit(coef(m1)[1] + coef(m1)[2] * x + coef(m1)[3] * FALSE + coef(m1)[4] * 1), from = min(income), to = max(income), add = TRUE, col=1)
 text(x = max(income), y = invlogit( coef(m1)[1] + coef(m1)[2] * max(income) + coef(m1)[3] * c(0,1) + coef(m1)[4] * 1), labels=c("非党员", "党员"), 
      adj=0, xpd=NA)
-save.image(file = './fig/fig1.jpg' ,width = 8, height = 5, dpi = 100)
+# save.image(file = './fig/fig1.jpg' ,width = 8, height = 5, dpi = 100)
 #---------------interaction term----------
 #-----------2.4---------
 m2 <- glm(protest ~ income + cpcer + nation_lan + cpcer:income, 
