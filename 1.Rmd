@@ -1,0 +1,73 @@
+---
+title: "Untitled"
+author: "Wenquan Wu"
+date: "2021/3/8"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+$$
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: 周一, 3月 08, 2021 - 1:29:06
+\begin{table}[!htbp] \centering 
+  \caption{} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & protest \\ 
+\hline \\[-1.8ex] 
+ income & 0.000 \\ 
+  & (0.00000) \\ 
+  & \\ 
+ cpcer & $-$0.440$^{**}$ \\ 
+  & (0.180) \\ 
+  & \\ 
+ nation\_lan比较差 & $-$0.500 \\ 
+  & (0.550) \\ 
+  & \\ 
+ nation\_lan一般 & $-$0.550 \\ 
+  & (0.490) \\ 
+  & \\ 
+ nation\_lan比较好 & $-$0.620 \\ 
+  & (0.490) \\ 
+  & \\ 
+ nation\_lan很好 & $-$1.000$^{**}$ \\ 
+  & (0.490) \\ 
+  & \\ 
+ Constant & $-$0.200 \\ 
+  & (0.470) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 1,431 \\ 
+Log Likelihood & $-$820.000 \\ 
+Akaike Inf. Crit. & 1,654.000 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\end{tabular} 
+\end{table} 
+$$
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
