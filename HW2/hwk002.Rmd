@@ -6,6 +6,7 @@ documentclass: ctexart
 keywords:
   - 定量政治分析方法
   - hw002
+geometry: "left=2.5cm,right=2cm,top=3cm,bottom=2.5cm"
 output:
   rticles::ctex:
     fig_caption: yes

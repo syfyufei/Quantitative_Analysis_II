@@ -120,7 +120,7 @@ summary(TM2)
 R2 <- summary(TM2)$r.squared
 cQuant <- n*R2
 pchisq(cQuant, 3, lower.tail=FALSE)
-#df的计算 ： 工具变量数- 被工具变量解释的工具变量数
+#df的计算 ： 工具变量数- 被工具变量解释的工具变量数， K-1
 
 # Hausmen test for the Endogeneity of X3
 B1 <- coef(TSLS)[1:4]
@@ -129,4 +129,4 @@ VB1 <- vcov(TSLS)[1:4,1:4]  #协方差矩阵
 VB2 <- vcov(OLS)[1:4,1:4]
 hQuant <- t(B1-B2)%*%solve(VB1-VB2)%*%(B1-B2)
 pchisq(hQuant, 4, lower.tail=FALSE)
-#df为
+#df为K
