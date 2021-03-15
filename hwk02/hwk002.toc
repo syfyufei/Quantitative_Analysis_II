@@ -1,0 +1,7 @@
+\contentsline {section}{\numberline {1}载入数据2sls.dta}{1}{section.1}%
+\contentsline {section}{\numberline {2}使用OLS 分析y 和x1, x2, x3 的关系。x3 的回归系数为何？}{2}{section.2}%
+\contentsline {section}{\numberline {3}如果x3 与y 存在内生性关系（互为因果），请使用工具变量z1, z2，应用2SLS重新分析y 和x1, x2, x3 的关系。x3 的回归系数为何？}{2}{section.3}%
+\contentsline {section}{\numberline {4}检验z1, z2 之于x3 是否为弱工具变量。}{4}{section.4}%
+\contentsline {section}{\numberline {5}使用2SLS 的余数检验z1, z2 之于y 的关系是否为外生。}{5}{section.5}%
+\contentsline {section}{\numberline {6}使用Hausmen test 检验x3 和y 的关系是否为内生。}{6}{section.6}%
+\contentsline {section}{\numberline {7}使用重复抽样（bootstrap 1000 次）的方法获取x3系数的标准误，并比较该标准误与2SLS 的差异，说明为什么会有差异？重复抽样5000次和10000次是否会缩小差异？如果不能，是说明为什么？}{6}{section.7}%

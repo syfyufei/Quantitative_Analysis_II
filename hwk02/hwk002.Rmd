@@ -1,0 +1,125 @@
+---
+title: "定量政治分析方法_hw002"
+author:
+  - 吴温泉
+documentclass: ctexart
+keywords:
+  - 定量政治分析方法
+  - hw002
+geometry: "left=2.5cm,right=2cm,top=3cm,bottom=2.5cm"
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+---
+
+# 载入数据2sls.dta
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(foreign)
+library(stargazer)
+library(parallel)
+library(systemfit)
+options(scipen = 200)
+data <- read.dta('./2sls.dta')
+attach(data)
+```
+
+# 使用OLS 分析y 和x1, x2, x3 的关系。x3 的回归系数为何？
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+OLS <- lm(y ~ x1 + x2 + x3, data = data)
+summary(OLS)
+```
+$x_3$的回归系数为0.757。
+
+# 如果x3 与y 存在内生性关系（互为因果），请使用工具变量z1, z2，应用2SLS重新分析y 和x1, x2, x3 的关系。x3 的回归系数为何？
+```{r}
+eq1 <- y ~ x1 + x2 + x3
+eq2 <- x3 ~ x1 + x2 + y
+system <- list(eq1, eq2)
+inst <- ~ x1 + x2 + z1 + z2
+TSLS <- systemfit(system, method="2SLS", inst=inst)
+summary(TSLS)
+```
+$x_3$的回归系数为2.313832。
+
+# 检验z1, z2 之于x3 是否为弱工具变量。
+```{r}
+M1 <- lm(x3 ~ x1 + x2 + z2)
+x3hat <- predict(M1)
+TM1 <- lm(y ~ x1 + x2 + x3 + x3hat)
+summary(TM1)
+```
+F>10, 因此可以拒绝$z_2$之于$x_3$为弱工具变量的原假设。
+
+# 使用2SLS 的余数检验z1, z2 之于y 的关系是否为外生。
+
+```{r}
+n <- nrow(data)
+res <- resid(TSLS)$eq1
+TM2 <- lm(res ~ x1 + x2 + z1 + z2)
+summary(TM2)
+R2 <- summary(TM2)$r.squared
+cQuant <- n * R2
+pchisq(cQuant, 3, lower.tail=FALSE)
+```
+因为pchisq为0.2802862不趋近于0，因此无法拒绝原假设。$z_1$,$z_2$之于$y$的关系为外生。
+
+# 使用Hausmen test 检验x3 和y 的关系是否为内生。
+```{r}
+B1 <- coef(TSLS)[1:4]
+B2 <- coef(OLS)[1:4]
+VB1 <- vcov(TSLS)[1:4,1:4] 
+VB2 <- vcov(OLS)[1:4,1:4]
+hQuant <- t(B1 - B2) %*% solve(VB1-VB2) %*% (B1 - B2)
+pchisq(hQuant, 4, lower.tail=FALSE)
+```
+因为pchisq趋近于0，因此拒绝原假设，IV回归与原来的OLS回归显著不同。
+
+# 使用重复抽样（bootstrap 1000 次）的方法获取x3系数的标准误，并比较该标准误与2SLS 的差异，说明为什么会有差异？重复抽样5000次和10000次是否会缩小差异？如果不能，是说明为什么？
+```{r}
+bootFUN <- function(){
+    n <- nrow(data)
+    idx <- sample(1:n, n, replace=TRUE)
+    tmp <- as.data.frame(data[idx, ])
+    M1 <- lm(x3 ~ x1 + x2 + z1 + z2, data=tmp)
+    x3hat <- predict(M1)
+    M2 <- lm(y~x1+x2+x3hat, data=tmp)
+    return(coef(M2)["x3hat"])
+}
+
+# 1000 times
+foo <- function() replicate(125, bootFUN())
+
+cl <- makeCluster(parallel::detectCores())
+clusterExport(cl = cl, c("data", "bootFUN")) # export object to each thread
+tryCatch(res <- clusterCall(cl=cl, fun = foo), finally = stopCluster(cl))
+sd(unlist(res))
+hist(unlist(res))
+abline(v = 2.313832, col = 2)
+abline(v = mean(unlist(res)), col = 3)
+
+# 5000 times
+foo <- function() replicate(625, bootFUN())
+
+cl <- makeCluster(parallel::detectCores())
+clusterExport(cl = cl, c("data", "bootFUN")) # export object to each thread
+tryCatch(res <- clusterCall(cl=cl, fun = foo), finally = stopCluster(cl))
+sd(unlist(res))
+hist(unlist(res))
+abline(v = 2.313832, col = 2)
+abline(v = mean(unlist(res)), col = 3)
+
+# 10000 times
+foo <- function() replicate(1250, bootFUN())
+
+cl <- makeCluster(parallel::detectCores())
+clusterExport(cl = cl, c("data", "bootFUN")) # export object to each thread
+tryCatch(res <- clusterCall(cl=cl, fun = foo), finally = stopCluster(cl))
+sd(unlist(res))
+hist(unlist(res))
+abline(v = 2.313832, col = 2)
+abline(v = mean(unlist(res)), col = 3)
+```
+
+2SLS中$x_3$的标准误为0.116407, bootstrap 1000次为0.1212649, 1000次为 0.1211651，1000次为0.1246845。增加重抽样的次数，能使得结果更接近正态分布，结果更加接近真实结果。
