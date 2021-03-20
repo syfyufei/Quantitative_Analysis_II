@@ -1,0 +1,41 @@
+---
+title: "Quant_II_hwk_03"
+author:
+  - 吴温泉
+documentclass: ctexart
+geometry: "left=2.5cm,right=2cm,top=3cm,bottom=2.5cm"
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+---
+# 因子分析(Factor Analysis)
+对abs.dta数据中各个机构、个人信任程度的差异进行因子分析进行降维处理。
+
+## 建立各个信任变量的描述性统计表格。
+```{r}
+library(haven)
+setwd("E:/SynologyDrive/Github/Quantitative_Analysis_II/hwk03/")
+data <- read_dta('./abs.dta')
+summary(data)
+```
+
+## 观察各个信任变量间的相关性矩阵，你是否可以总结出初步的分类？请使用corrplot()。
+```{r}
+n <- dim(data)[1]
+corMat <- cor(data, use = "pairwise.complete.obs") #correlation matrix
+library(corrplot)
+res <- cor.mtest(data, conf.level = 0.95)
+corrplot(corMat, method = "ellipse", type = "lower", p.mat = res$p, sig.level = 0.05, order = "hclust")
+```
+可以发现：
+
+1. trustNGO是唯一与其他各项呈现**负相关**的一项，其中与trustNewspaper、trustTV的负相关系数最大。
+1. trustRelative、trustNeighbor、trustOther、trustCivService四项**社会信任**的变量相互之间的相关性较小，与其他信任变量的相关性也较小。
+1. trustNewspaper与trustTV两项**媒体信任**的相关性很大
+1. trustMilitary、trustParliament、rustNatGov、trustParty、trustPolice、trustCourt、trustLocGov七项**政府信任**变量之间的相关程度较大。其中可细分为：
+    - trustMilitary、trustParliament、rustNatGov、trustParty四项**党国信任**变量之间的相关程度很高
+    - trustCourt**法院信任**与其他各项政府信任之间的相关性较低
+    - rustNatGov**当地政府信任**与与其他各项政府信任之间的相关性较低，但与trustPolice之间的信任程度较高。
+

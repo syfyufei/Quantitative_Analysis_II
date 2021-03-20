@@ -1,0 +1,3 @@
+\contentsline {section}{\numberline {1}因子分析(Factor Analysis)}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}建立各个信任变量的描述性统计表格。}{1}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}观察各个信任变量间的相关性矩阵，你是否可以总结出初步的分类？请使用corrplot()。}{2}{subsection.1.2}%
