@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.3.20)  20 MAR 2021 22:06
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.3.20)  21 MAR 2021 17:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1010,7 +1010,7 @@ File: hwk03_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf)
 [3]
 Missing character: There is no α in font [lmroman12-bold]:mapping=tex-text;!
 
-Overfull \hbox (249.65385pt too wide) in paragraph at lines 248--248
+Overfull \hbox (249.65385pt too wide) in paragraph at lines 249--249
 []\TU/lmtt/m/n/10.53937 ## Warning in alpha(data, check.keys = TRUE): Some item
 s were negatively correlated with total scale and were automatically reversed.[
 ] 
@@ -1020,18 +1020,21 @@ s were negatively correlated with total scale and were automatically reversed.[
 Missing character: There is no α in font [lmroman10-regular]:mapping=tex-text;!
 Missing character: There is no α in font [lmroman10-regular]:mapping=tex-text;!
 [6] [7]
-Overfull \hbox (144.52371pt too wide) in paragraph at lines 464--464
+Overfull \hbox (144.52371pt too wide) in paragraph at lines 465--465
 []\TU/lmtt/m/n/10.53937 ## factanal(x = ~., factors = 3, data = data, scores = 
 "regression",     factor = 3, roation = "varimax", SMC = T)[] 
  []
 
 [8] [9] [10] [11]
-Overfull \hbox (166.65639pt too wide) in paragraph at lines 626--626
+Overfull \hbox (166.65639pt too wide) in paragraph at lines 627--627
 []\TU/lmtt/m/n/10.53937 ## factanal(x = ~., factors = 3, data = fac_data, score
 s = "regression",     factor = 3, roation = "varimax", SMC = T)[] 
  []
 
-[12] [13] (./hwk03.aux)
+[12]
+File: hwk03_files/figure-latex/hclust-1.pdf Graphic file (type pdf)
+<use hwk03_files/figure-latex/hclust-1.pdf>
+[13] (./hwk03.aux)
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
@@ -1039,10 +1042,10 @@ Package rerunfilecheck Info: File `hwk03.out' has not changed.
 (rerunfilecheck)             Checksum: B2D0355952A2DBFB1B2E450096F47E08;4383.
  ) 
 Here is how much of TeX's memory you used:
- 19378 strings out of 478922
- 391756 string characters out of 5865404
+ 19384 strings out of 478922
+ 391981 string characters out of 5865404
  847881 words of memory out of 5000000
- 38949 multiletter control sequences out of 15000+600000
+ 38954 multiletter control sequences out of 15000+600000
  407553 words of font info for 87 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  101i,6n,123p,1488b,889s stack positions out of 5000i,500n,10000p,200000b,80000s
