@@ -1,3 +1,9 @@
 \contentsline {section}{\numberline {1}因子分析(Factor Analysis)}{1}{section.1}%
 \contentsline {subsection}{\numberline {1.1}建立各个信任变量的描述性统计表格。}{1}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}观察各个信任变量间的相关性矩阵，你是否可以总结出初步的分类？请使用corrplot()。}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}进行克隆巴赫系数(Cronbach's α)检验信任程度问题的内在信度（提示：是否都是同向？如果不是，进行必要的调整）。}{4}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}进行主成分(pcf) 因子分析，有多少因子的特征值(Eigenvalue)超过1？这些因子的贡献度为何？需要多少因子，公共因子的累计贡献度才会超过80\%？是否存在特殊度(Uniqueness)过高的变量？观察从这几个统计量，你可以总结出几个因子来对机构信任程度进行降维分类？}{6}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}进行因子旋转。}{8}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}构建二阶相关矩阵(Square Multiple Correlation, SMC)，是否存在SMC过小的变量？观察反映象协方差矩阵(Anti-Image Covariance Coefficients)，是否存在过多的太大的系数？观察Kaiser--Meyer--Olkin统计量，是否存在KMO 过小(KMO \textless {} 0.6) 的变量？如果以上统计量有不符合标准的，对变量进行调整（删除），重新进行因子分析。}{9}{subsection.1.6}%
+\contentsline {subsection}{\numberline {1.7}观察结构矩阵，对得出的因子进行命名。}{13}{subsection.1.7}%
+\contentsline {subsection}{\numberline {1.8}构建因子得分变量(变量名称使用上述命名)，并使用树状图进行可视化描述。}{13}{subsection.1.8}%

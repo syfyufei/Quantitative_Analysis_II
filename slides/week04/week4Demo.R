@@ -1,10 +1,8 @@
 setwd("d:/baidu/tsinghua/courses/quantii/week04")
 library(foreign)
-options(scipen = 2000000)
 dat <- read.dta("./slides/week04/wdi.dta")
 summary(dat)
 dat <- dat[,c(-1,-2)]
-
 
 n <- dim(dat)[1]
 corMat <- cor(dat, use = "pairwise.complete.obs") #correlation matrix
@@ -35,9 +33,9 @@ cortest.bartlett(corMat, n=n)
 alpha(dat)
 
 
-#raw_alpha: Cronbach’s α (values ??? .7 or .8 indicate good reliability; Kline (1999))
+#raw_alpha: Cronbach’s α (values �? .7 or .8 indicate good reliability; Kline (1999))
 #std.alpha: this should be similar to raw_alpha (we only need the raw alpha though)
-#G6: Guttman’s lambda 6 (calculated from the squared multiple correlation or ‘smc???)
+#G6: Guttman’s lambda 6 (calculated from the squared multiple correlation or ‘smc�?)
 #average_r: average inter-item correlation (this is used to calculate std.alpha)
 #mean: scale mean (the mean of the means of all individuals)
 #sd: scale sd
@@ -70,8 +68,8 @@ pcafit <- princomp(~., data=dat, cor=TRUE)
 summary(pcafit) # print variance accounted for
 loadings(pcafit) # pc loadings
 plot(pcafit,type="lines") # scree plot
-# pcafit$scores # the principal components
-# biplot(pcafit)
+#pcafit$scores # the principal components
+#biplot(pcafit)
 
 
 library(psych)
@@ -79,8 +77,8 @@ fit1 <- principal(dat, nfactors=3, rotate="varimax")
 print(fit1, digits=2)
 
 
-M1 <- factanal(~., data=dat, factors=2 , scores="regression") # scores = "bartlett"
-M2 <- update(M1, factor=2, roation = "varimax")
+M1 <- factanal(~., data=dat, factors=3, scores="regression") # scores = "bartlett"
+M2 <- update(M1, factor=3, roation = "varimax")
 M2$uniquenesses
 print(M2, digits=2, cutoff=.3, sort=TRUE)
 loading <- M2$loadings[,1:2]

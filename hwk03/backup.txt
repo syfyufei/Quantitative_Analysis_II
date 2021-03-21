@@ -1,0 +1,43 @@
+@@ -19,6 +19,7 @@ library(haven)
+setwd("E:/SynologyDrive/Github/Quantitative_Analysis_II/hwk03/")
+data <- read_dta('./abs.dta')
+summary(data)
+data <- na.omit(data)
+```
+
+## 观察各个信任变量间的相关性矩阵，你是否可以总结出初步的分类？请使用corrplot()。
+@ -39,3 +40,34 @@ corrplot(corMat, method = "ellipse", type = "lower", p.mat = res$p, sig.level =
+    - trustCourt**法院信任**与其他各项政府信任之间的相关性较低
+    - rustNatGov**当地政府信任**与与其他各项政府信任之间的相关性较低，但与trustPolice之间的信任程度较高。
+
+## 进行克隆巴赫系数(Cronbach’s α)检验信任程度问题的内在信度（提示：是否都是同向？如果不是，进行必要的调整）。
+trustNGO与其他变量不同向，进行调整
+```{r}
+library(psych)
+alpha(data, check.keys=TRUE)
+```
+可知总体的Cronbach’s α值为0.8661063，通过检验。去掉某一个项变量的Cronbach’s α值中，raw_alpha并没有明显变化，因此不进行去除。
+
+## 进行主成分(pcf) 因子分析，有多少因子的特征值(Eigenvalue)超过1？这些因子的贡献度为何？需要多少因子，公共因子的累计贡献度才会超过80%？是否存在特殊度(Uniqueness)过高的变量？观察从这几个统计量，你可以总结出几个因子来对机构信任程度进行降维分类？
+```{r}
+ev <- eigen(corMat)
+ev$values 
+
+pcafit <- princomp(~., data=data, cor=TRUE)
+summary(pcafit) # print variance accounted for
+loadings(pcafit) # pc loadings
+plot(pcafit,type="lines") # scree plot
+# pcafit$scores # the principal components
+# biplot(pcafit)
+
+library(psych)
+# fit1 <- principal(dat, nfactors=14, rotate="varimax")
+library(psych)
+fit1 <- principal(data, nfactors=14, rotate="varimax")
+print(fit1, digits=2)
+
+```
+
+可知，Comp.1，Comp.2，Comp.3三个因子的特征值超过了1，贡献度为0.3874151，0.1344018，0.08529483。需要七个因子，公共因子的累计贡献度才会超过80%。
+
+## 
