@@ -48,6 +48,7 @@ phatMat <- predict(M1, newdata=dat3, type = "probs")
 xMat <- with(dat3, cbind(male, age, ccpmember, hinc))
 z <- xMat%*%as.matrix(coef(M1))
 resids <- dat3$happy - z
+#sd(z) 应该等于1.81 N(0, 1.81)
 hist(resids)
 
 library(brant)
@@ -57,7 +58,7 @@ M2 <- polr(ordered(happy) ~ male + age + ccpmember + loghinc, data=dat2,  method
 summary(M2)
 brant(M2)
 
-library(VGAM)
+library(VGAM)  #进阶写法
 M3.1 <- vglm(ordered(happy) ~ male + age + ccpmember + loghinc, cumulative(link = "logitlink", parallel = TRUE ~ -1 + male), data=dat2)
 summary(M3.1)
 M3.2 <- vglm(ordered(happy) ~ male + age + ccpmember + loghinc, cumulative(link = "logitlink", parallel = FALSE ~ 1 + age + ccpmember + loghinc), data=dat2)
@@ -89,6 +90,8 @@ cumSum <- function(pmat){
     return(cpmat)
 }
 
+#累积图
+
 cphat <- cumSum(phat)
 cphat2 <- t(apply(phat, 1, cumsum))
 par(mar=c(3,3,1,5), mgp=c(1.5,0.2,0), tcl=-0.2)
@@ -113,6 +116,7 @@ M3 <- polr(ordered(happy) ~ male + age + ccpmember + loghinc, data=dat4,  method
 summary(M3)
 
 brant(M3)
+# 过了俩
 
 phat <- predict(M3, newdata = newDat, type="prob")
 par(mar=c(3,3,1,5), mgp=c(1.5,0.2,0), tcl=-0.2)
