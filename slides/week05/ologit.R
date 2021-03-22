@@ -29,6 +29,8 @@ summary(M0)
 M1 <- polr(ordered(happy) ~ male + age + ccpmember + hinc, data=dat3,  method = "logistic", Hess=TRUE)
 summary(M1)
 
+# exp(coef(M1))
+
 nullDev <- deviance(M0)
 dev <- deviance(M1)
 pR2 <- (nullDev-dev)/nullDev
@@ -37,6 +39,8 @@ LR <- nullDev - dev
 k <- length(coef(M1))
 prob <- pchisq(LR, df=k-1, lower.tail = FALSE)
 
+# AIC(M1)  没有考虑自变量
+# BIC(M1)  自变量数很多的情况
 
 methods(predict)
 getAnywhere(predict.polr)
