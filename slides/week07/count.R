@@ -55,14 +55,14 @@ seM1 <- sqrt(diag(covM1))
 # sandwich manually
 X <- model.matrix(M1)
 hatX <- lm.influence(M1)$hat
-Omega <- diag(M1$residuals^2/(1-hatX)^2)
+Omega <- diag(M1$residuals^2/(1-hatX)^2)  # 即协方差矩阵为零
 cov2 <- solve(t(X)%*%X) %*% t(X) %*% Omega %*% X %*% solve(t(X)%*%X)
 sesM1 <- sqrt(diag(cov2))
 
 # predicted lambda
-lambda <- predict(M1, type= "response") # predictive counts
+lambda <- predict(M1, type= "response") # predictive counts 给出次数的期望值，非正整数
 
-xbetas <- predict(M1, type = "link") #  == fitted(M1)
+xbetas <- predict(M1, type = "link") #  == fitted(M1) 
 all(lambda== exp(xbetas))
 
 # pseudo R2
@@ -90,7 +90,7 @@ newX <- with(dat, cbind.data.frame(female = c(0,1), married = 0,  kid5 = 0, phd 
 IRR(M1, newX)
 # 0.7777501
 # female publishes 20% (1-0.7988403) less paper than male
-
+#  == exp(coef(M1))
 
 # comparison between saturated and null model
 newX <- with(dat, cbind.data.frame(female = 1, married = 1,  kid5 = mean(kid5), phd = mean(phd), ment = mean(ment)))
@@ -170,18 +170,18 @@ summary(M4)
 dat$artBin <- ifelse(dat$art > 0, 1, dat$art)
 dat$artNew <- ifelse(dat$art==0, NA, dat$art)
 M4.1 <- glm(artBin ~ female + married + kid5 + phd + ment, data=dat, family=binomial)
-summary(M4.1)
+summary(M4.1)  # hurdle 第一阶段结果 M4 stage1 
 library(VGAM)
 # zero truncated poisson
 M4.2 <- vglm(artNew ~ female + married + kid5 + phd + ment, data=dat, family=pospoisson())
-summary(M4.2)
+summary(M4.2)  # hurdle 第二阶段结果 M4 stage2
 # zero truncated negative binomial
 M4.3 <- vglm(artNew ~ female + married + kid5 + phd + ment, data=dat, family=posnegbinomial())
 summary(M4.3)
 
 # zero inflated poisson
 M5 <- zeroinfl(art ~ female + married + kid5 + phd + ment, data=dat, dist = "poisson", link = "logit")
-summary(M5)
+summary(M5)  #
 
 foo2 <- function() {
     require(pscl)
@@ -193,26 +193,30 @@ clusterExport(cl = cl, c("M5", "dat", "bootSE")) # export object to each thread
 tryCatch(res <- clusterCall(cl=cl, fun = foo2), finally = stopCluster(cl))
 res2 <- abind(res, along=2)
 simSes <- apply(res2, 1, sd)
-
+#SE 有误，重新bootstrap  0.06 0.043
 
 
 # zero inflated negative binomial
 M6 <- zeroinfl(art ~ female + married + kid5 + phd + ment, data=dat, dist = "negbin", link = "logit")
 summary(M6)
+#更接近bootstrap
 M6.2 <- glm(art ~ female + married + kid5 + phd + ment, data=dat, family=poisson())
-summary(M6.2)
+summary(M6.2)  #不知道干嘛的，不管它
 
 # zerp altered poisson
 M7.1 <- vglm(artNew ~ female + married + kid5 + phd + ment, data=dat, family=zapoisson)
 summary(M7.1)
+
 # zero altered negative binomial
 M7.2 <- vglm(artNew ~ female + married + kid5 + phd + ment, data=dat, family=zanegbinomial)
 summary(M7.2)
 
 
+# ZAP可以不考虑 不稳定
 
 
-# AIC BIC
+
+# AIC BIC  只要新模型数值越小越好，快速判断
 AIC(M1)
 AIC(M2)
 AIC(M3)
@@ -228,8 +232,8 @@ BIC(M5)
 BIC(M6)
 
 
-# vuong test
-vuong(M3, M6)
+# vuong test 还是有点问题
+vuong(M3, M6)  
 # significant means M6 is better than M3
 
 # fit count data with Bayesian methods
@@ -256,3 +260,4 @@ vuong(M3, M6)
 #print(BM02)
 #pairs(BM02)
 #stan_Rhats(BM02)
+
