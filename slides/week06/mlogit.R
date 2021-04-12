@@ -1,6 +1,6 @@
 setwd("D:\\Baidu\\Tsinghua\\Courses\\QuantII\\week06\\")
 library(foreign)
-dat <- read.dta("cgss2010short.dta")
+dat <- read.dta("E:/SynologyDrive/Github/Quantitative_Analysis_II/slides/week06/cgss2010short.dta")
 
 summary(dat)
 male <- ifelse(dat$a2=="男", 1, 0)

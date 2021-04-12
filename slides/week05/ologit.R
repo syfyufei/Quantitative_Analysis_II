@@ -1,19 +1,27 @@
 setwd("D:/baidu/Tsinghua/Courses/QuantII/week05/")
 
 library(foreign)
-dat <- read.dta("cgss2010short.dta")
+dat <- read.dta("E:/SynologyDrive/Github/Quantitative_Analysis_II/slides/week05/cgss2010short.dta")
 summary(dat)
 male <- ifelse(dat$a2=="男", 1, 0)
+
 a3a <- ifelse(dat$a3a < 17, NA, dat$a3a)
 age <- 2010-a3a
+
 table(dat$a10)
+
 ccpmember <- ifelse(dat$a10=="共产党员", 1, 0)
+
 a36 <- as.numeric(dat$a36)
+
 happy <- ifelse(a36<3, NA, a36-2)
+
 a62 <- ifelse(dat$a62 > 9999996, NA, dat$a62)
+
 probs <- c(0, 0.07, 0.25, 0.5, 0.75, 0.93, 1)
 kpts <- quantile(a62, prob=probs, na.rm=TRUE)
 hinc <- as.numeric(cut(a62, breaks=kpts, labels = 1:6, right=TRUE))
+
 kpts2 <- quantile(a62, prob=c(0,1/6,2/6,3/6,4/6,5/6,1), na.rm=TRUE)
 hinc2 <- as.numeric(cut(a62, breaks=kpts2, labels = 1:6, right=TRUE))
 
@@ -70,7 +78,7 @@ phat <- predict(M2, newdata = newDat, type="probs")
 
 par(mar=c(3,3,1,5), mgp=c(1.5,0.2,0), tcl=-0.2)
 plot(0,0, ylim=c(0,1), xlim=range(loghinc, na.rm=TRUE), type="n",
-    ylab="predictive probabilities", xlab="log(househould income)", xaxs="i", yaxs="i")
+     ylab="predictive probabilities", xlab="log(househould income)", xaxs="i", yaxs="i")
 for(i in 1:5){
     lines(x=newDat$loghinc, y=phat[,i], col=i)
 }
@@ -78,7 +86,7 @@ for(i in 1:5){
     text(x=16, y=phat[1000, i], labels=paste("Pr(happy=", i, ")", sep=""), xpd=NA, adj=0, col=i)
 }
 legend("topright", col=1:5, lty=1, legend=paste("Pr(happy=", 1:5, ")", sep=""))
-legend(locator(1), col=1:5, lty=1, legend=paste("Pr(happy=", 1:5, ")", sep=""))
+# legend(locator(1), col=1:5, lty=1, legend=paste("Pr(happy=", 1:5, ")", sep=""))
 
 
 cumSum <- function(pmat){
@@ -145,3 +153,4 @@ for(i in 2:3){
 
 
 exp(coef(M2))
+

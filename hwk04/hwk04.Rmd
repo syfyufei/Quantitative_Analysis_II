@@ -1,0 +1,294 @@
+---
+title: "Quant_II_hwk_04"
+author:
+  - 吴温泉
+documentclass: ctexart
+geometry: "left=2.5cm,right=2cm,top=3cm,bottom=2.5cm"
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+---
+
+# 定序、定类因变量分析：
+
+## 分析CGSS2010 数据中A35问题：“总的来说，您认为当今的社会是不是公平的？”探讨性别、年龄、收入对公平感知的关系。
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(haven)
+Sys.setenv(LANG='en')
+```
+
+```{r}
+data <- read_dta('./cgss2010_14.dta')
+
+
+fair_data <- data %>% 
+  dplyr::select(c(a2,  # gender , 1 = male , 2 = female
+           a3a,  # age
+           # 'a8a', # income
+           a62, # income            
+           a35  # fair
+           )) %>% 
+  mutate(age = 2010-a3a) %>% 
+  filter(age > 17) %>%
+  # filter(a62 < 9999996) %>% 
+  # filter(a35 > 0) %>% 
+  mutate(gender = a2, income = a62, fair = a35) %>% 
+  dplyr::select(c('gender','age','income','fair'))
+
+
+
+age <- fair_data$age
+gender <- ifelse(fair_data$gender == 1, 1, 0)  # 0 = female , 1 = male
+# temp <- as.numeric(fair_data$fair)
+fair <- ifelse(fair_data$fair < 0, NA, fair_data$fair)
+income <- ifelse(fair_data$income > 9999996, NA, fair_data$income)
+probs <- c(0, 0.07, 0.25, 0.5, 0.75, 0.93, 1)
+kpts <- quantile(income, prob=probs, na.rm=TRUE)
+hinc <- as.numeric(cut(income, breaks=kpts, labels = 1:6, right=TRUE))
+loghinc <- log(income+1)
+
+fair_data_na <- cbind.data.frame(fair, gender, age, hinc, loghinc)
+fair_data <- na.exclude(cbind.data.frame(fair, gender, age, hinc, loghinc))
+
+
+ggplot(fair_data) +
+  geom_point(aes(x= fair, y = hinc, color = as.character(gender)),
+             position = position_jitter())
+
+```
+```{r}
+ggplot(fair_data) +
+  geom_point(aes(x= fair, y = hinc, color = age),
+             position = position_jitter())
+```
+
+## 使用ordered logistic regression (polr()) 分析性别、年龄、收入（自变量）对公 平感知（因变量）的关系，初步使用系数的正负关系解读因变量和自变量的关 系，并说明Peudo-R2 和似然值检验的结果。
+```{r}
+library(MASS)
+M0 <- polr(ordered(fair)~1, method = "logistic", data = fair_data)
+summary(M0)
+
+M1 <- polr(ordered(fair) ~ gender + age + hinc, data = fair_data,  method = "logistic", Hess=TRUE)
+summary(M1)
+
+nullDev <- deviance(M0)
+dev <- deviance(M1)
+pR2 <- (nullDev-dev)/nullDev
+pR2
+
+LR <- nullDev - dev
+k <- length(coef(M1))
+prob <- pchisq(LR, df=k-1, lower.tail = FALSE)
+
+```
+年龄与公正感正相关，年龄与公正感成负相关，女性比男性更加认为社会是公正的。
+Peudo-R2：有自变量的模型较没有自变数的模型可以解释的偏差比为4%
+似然值检验显著，有自变量的模型较没有自变数的模型可以解释y更多的偏差，拟合优度(goodness of fit) 显著性改善。
+
+## 使用胜算比(odds ratio) 解释因变量和自变量的关系。
+```{r}
+exp(coef(M1))
+```
+比较除了性别以外相同的两个人，男性比女性少（1 − 0.98 ≈= 0.02）2% 的概率认为社会是公正的。
+比较除了年龄以外相同的两个人，年龄大1岁的群体，他认为社会公正的概率多1%。
+比较除了家庭收入以外相同的两个人，收入每增加1%，有钱人比穷人少6%的概率认为社会是公正的。
+
+## 比较40 岁、收入为均值的男性和女性之间在各个公平感知类别的预测概率的差 异(提示：使用predict())。
+```{r}
+mean_inc <- mean(fair_data$loghinc)
+
+newDat <- cbind.data.frame(gender = c(1, 0), age= rep(40,2), loghinc =  rep(mean_inc,2) )
+
+M2 <- polr(ordered(fair) ~ gender + age + loghinc, data=fair_data_na,  method = "logistic")
+phat <- predict(M2, newdata = newDat, type="probs")
+library(reshape2)
+df <- melt(as.data.frame(phat))
+df$gender <- c('male', 'female')
+ggplot(df) +
+  geom_point(aes(x = variable, y = value , color = gender),
+             size = 10, 
+             # shape = 1, 
+             position = position_jitter())
+```
+觉得社会比较不公平的男性比女性多，觉得社会比较公平的女性比男性多。
+
+## 绘出40 岁的男性收入和各个公平感知类别的预测概率的曲线图。从图中你观察到什么？
+```{r}
+
+M2 <- polr(ordered(fair) ~ gender + age + loghinc, data=fair_data_na,  method = "logistic")
+
+newDat <- cbind.data.frame(gender = rep(1, 1000), age=rep(40, 1000), loghinc = seq(0,16, length=1000))
+
+phat <- predict(M2, newdata = newDat, type="probs")
+
+par(mar=c(3,3,1,5), mgp=c(1.5,0.2,0), tcl=-0.2)
+plot(0,0, ylim=c(0,1), xlim=range(loghinc, na.rm=TRUE), type="n",
+    ylab="predictive probabilities", xlab="log(househould income)", xaxs="i", yaxs="i")
+for(i in 1:5){
+    lines(x=newDat$loghinc, y=phat[,i], col=i)
+}
+for(i in 1:5){
+    text(x=16, y=phat[1000, i], labels=paste("Pr(fair=", i, ")", sep=""), xpd=NA, adj=0, col=i)
+}
+legend("topright", col=1:5, lty=1, legend=paste("Pr(fair=", 1:5, ")", sep=""))
+
+```
+随着收入增加，比较公平（4）的概率下降，比较不公平（2）和完全不公平（1）的概率增加。
+
+## 进行平行性检验(提示：使用brant() 命令)，上述模型是否通过检验。
+```{r}
+library(brant)
+brant(M1)
+brant(M2)
+````
+差异显著，平行性检验不通过。
+
+## 使用multinomial logistic regression (multinom()) 分析性别、年龄、收入（自变 量）对公平感知（因变量）的关系，初步使用系数的正负关系解读因变量和自 变量的关系，并说明Peudo-R2和似然值检验的结果。
+```{r}
+library(nnet)
+M3 <- multinom(factor(fair) ~ 1, data = fair_data_na)
+summary(M3)
+M4 <- multinom(factor(fair) ~ age + gender + loghinc, data=fair_data_na, Hess=TRUE)
+summary(M4)
+
+nullDev <- deviance(M3)
+dev <- deviance(M4)
+
+pR2 <- (nullDev- dev) / nullDev
+pR2 <- 1 - logLik(M4)/logLik(update(M4, .~1))
+
+LR <- nullDev - dev
+k <- length(coef(M4))
+prob <- pchisq(LR, df=k-2, lower.tail = FALSE) 
+```
+
+## 使用相对曝险比(relative risk ratio) 解释因变量和自变量的关系。
+```{r}
+exp(coef(M4))
+```
+### 相对于完全不公平人群，在比较不公平中人群：
+比较除了性别以外相同的两个人，女性比男性少多13% 的概率认为社会是公正的。
+比较除了年龄以外相同的两个人，年龄大1岁的群体，他认为社会公正的概率多7%。
+比较除了家庭收入以外相同的两个人，收入每增加1%，他认为社会公正的概率多2.5%。
+
+### 相对于完全不公平人群，在居中人群中：
+比较除了性别以外相同的两个人，女性比男性少多24% 的概率认为社会是公正的。
+比较除了年龄以外相同的两个人，年龄大1岁的群体，他认为社会公正的概率多6%。
+比较除了家庭收入以外相同的两个人，收入每增加1%，他认为社会公正的概率少2%。
+
+
+### 相对于完全不公平人群，在比较公平人群中：
+比较除了性别以外相同的两个人，女性比男性少多13% 的概率认为社会是公正的。
+比较除了年龄以外相同的两个人，年龄大1岁的群体，他认为社会公正的概率多17%。
+比较除了家庭收入以外相同的两个人，收入每增加1%，他认为社会公正的概率少1%。
+
+### 相对于完全不公平人群，在完全公平人群中：
+比较除了性别以外相同的两个人，女性比男性少多13% 的概率认为社会是公正的。
+比较除了年龄以外相同的两个人，年龄大1岁的群体，他认为社会公正的概率多21%。
+比较除了家庭收入以外相同的两个人，收入每增加1%，他认为社会公正的概率少15%。
+
+## 比较40 岁、收入为均值的男性和女性之间在各个公平感知类别的预测概率的差异。
+```{r}
+mean_inc <- mean(fair_data$loghinc)
+
+newDat <- cbind.data.frame(gender = rep(c(1, 0), 5), age= rep(40,10), loghinc =  rep(mean_inc,10 ))
+
+phat <- predict(M4, newdata = newDat, type="probs")
+library(reshape2)
+df <- melt(as.data.frame(phat))
+df$gender <- c('male', 'female')
+ggplot(df) +
+  geom_point(aes(x = variable, y = value , color = gender),
+             size = 10, 
+             # shape = 1, 
+             position = position_jitter())
+```
+觉得社会比较不公平的男性比女性多，同时，觉得社会比较公平、居中的男性也比女性多。
+
+## 绘出40 岁的男性收入和各个公平感知类别的预测概率的曲线图。从图中你观察 到什么？
+```{r}
+
+newDat <- cbind.data.frame(gender = seq(1, 1000), age=rep(40, 1000), loghinc = seq(0,16, length=1000))
+
+phat <- predict(M4, newdata = newDat, type="probs")
+
+par(mar=c(3,3,1,5), mgp=c(1.5,0.2,0), tcl=-0.2)
+plot(0,0, ylim=c(0,1), xlim=range(loghinc, na.rm=TRUE), type="n",
+    ylab="predictive probabilities", xlab="log(househould income)", xaxs="i", yaxs="i")
+for(i in 1:5){
+    lines(x=newDat$loghinc, y=phat[,i], col=i)
+}
+for(i in 1:5){
+    text(x=16, y=phat[1000, i], labels=paste("Pr(fair=", i, ")", sep=""), xpd=NA, adj=0, col=i)
+}
+legend("topright", col=1:5, lty=1, legend=paste("Pr(fair=", 1:5, ")", sep=""))
+```
+看不出来。
+
+## 进行公平感知各类别相互独立性检验(Hausman Test 和Small and Hsiao test)。
+```{r, eval=FALSE}
+
+# Hausman McFaden IIA test
+
+library(mlogit)
+fair_data_hausman <- mlogit.data(fair_data, choice = "fair", shape = "wide", sep="_", alt.levels = 1:5)
+
+M4 <- mlogit(fair ~ 1 | age + gender + loghinc, data=fair_data_hausman)
+M5 <- mlogit(fair ~ 1 | age + gender + loghinc, data=fair_data_hausman, alt.subset = c(1,2,3,4))
+
+mlogit:::hmftest(M3, M4)
+
+
+# Small and Hsiao Test
+
+smhsiaoTest <- function(formula, data, seed = 1234,
+    choiceVar = "fair", keepLev = c(1,2,3,4)){
+    set.seed(seed)
+    library(mlogit)
+    n <- dim(data)[1]
+    idx <- sample(1:n, n, replace=FALSE)
+    half <- floor(n/2)
+    idx1 <- idx[1:half]
+    idx2 <- idx[(half+1):n]
+    datA <- data[idx1,]
+    datB <- data[idx2,]
+    levs <- levels(as.factor(data[,choiceVar]))
+    datA <- mlogit.data(datA, choice = choiceVar, shape = "wide", sep="_")#, alt.levels = levs)
+    datB <- mlogit.data(datB, choice = choiceVar, shape = "wide", sep="_")#, alt.levels = levs)
+    fitA <- mlogit(formula, data=datA)
+    fitB <- mlogit(formula, data=datB)
+    betaF <- coef(fitA) * 1/sqrt(2) + coef(fitB)*(1-1/sqrt(2))
+    fitC <- mlogit(formula, data=datB, alt.subset = keepLev)
+    betaR <- coef(fitC)
+    LL1 <- logLik(fitC)
+    uu <- names(betaR)
+    betaFR <- betaF[uu]
+    K <- length(betaR)
+    fitD <- mlogit(formula, data=datB, alt.subset = keepLev, start = betaFR, iterlim=0)
+    LL0 <- logLik(fitD)
+    SH <- -2*(LL0 - LL1)
+    prob <- pchisq(SH, df=K, lower.tail=FALSE)
+    out <- list("chisq" = SH[1], "df" = K, "pValue" = prob[1], "LLU" = LL0, "LLR" = LL1)
+    if(prob > 0.05){
+        cat("\nSmall and Hsiao test\nH0: IIA assumption is accepted\n")
+    } else {
+        cat("\nSmall and Hsiao test\nH0: IIA assumption is rejected\n")
+    }
+    return(out)
+}
+
+smhsiaoTest(shopping ~ 1 | age + gender + loghinc  , data=fair_data, seed = 11, keepLev = c(1,2))
+
+
+smhsiaoTest(shopping ~ 1 | age + gender + loghinc + ccpmember, data=fair_data, seed = 111, keepLev = c(1,3))
+
+
+smhsiaoTest(shopping ~ 1 | age + gender + loghinc + ccpmember, data=fair_data, seed = 1111, keepLev = c(2,3))
+
+smhsiaoTest(shopping ~ 1 | age + gender + loghinc + ccpmember, data=fair_data, seed = 1111, keepLev = c(,3))
+
+```
+## 如果以上检验各类别相互并不独立，你会给出什么样的建模建议？
