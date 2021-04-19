@@ -146,6 +146,28 @@ legend(locator(1), lty=1, col=c(1,2), legend = c("Female", "Male"))
 
 
 
+rangeInc <- with(dat2, range(loghinc))
+incFake <- seq(rangeInc[1],rangeInc[2],length=1000)
+newXY <- with(dat2, cbind.data.frame(male = 1, age = 30, ccpmember = 1, loghinc = incFake))
+newXN <- with(dat2, cbind.data.frame(male = 1, age = 30, ccpmember = 0, loghinc = incFake))
+lambdaY <- predict(M1, newdata=newXY, type = "response")
+lambdaN <- predict(M1, newdata=newXN, type = "response")
+
+N <- 5 # publish 2 papers
+phatY <- dpois(N, lambdaY) # compute predictive probability given N = 2, and lambda predicted from the model
+phatN <- dpois(N, lambdaN)
+
+par(mar=c(3,3,1,1), mgp=c(2,0.5,0), tcl=-0.2)
+plot(x=incFake, y=phatY, type="l", xlim=rangeInc, ylim=c(0,0.5),
+     xlab = "Loginc", ylab = "Pr(contribution = 5)")
+lines(x = incFake, y=phatN, col=2)
+text(x = incFake[500], y = phatY[500], "CCP Member", adj=0)
+text(x = incFake[500], y = phatN[500], "Not CCP Member", adj=1, col=2)
+#legend("topright", lty=1, col=c(1,2), legend = c("Female", "Male"))
+legend(locator(1), lty=1, col=c(1,2), legend = c("CCP Member", "Not CCP Member"))
+
+
+
 M2 <- glm(art ~ female + married + kid5 + phd + ment, data=dat, family=quasipoisson)
 summary(M2)
 
