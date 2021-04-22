@@ -17,3 +17,4 @@ model {
   //kidScore ~ normal(beta[1] + beta[2] * momHs + beta[3] * momIq + beta[4] * inter, sigma);
   target += normal_lpdf(kidScore| beta[1] + beta[2] * momHs + beta[3] * momIq + beta[4] * inter, sigma);
 }
+// 如何提高速度 把model的东西扔到trans

@@ -15,5 +15,5 @@ transformed parameters{
     lambda = exp(X*beta + offset);    
 }
 model{
-    y ~ poisson(mu); 
+    y ~ poisson(lambda); 
 }

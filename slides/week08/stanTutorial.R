@@ -31,7 +31,7 @@ betaPost <- extract(BM01, "beta")$beta
 betaMean <- colMeans(betaPost)
 betaSE <- apply(betaPost, 2, sd)
 
-BM01a <- stan(file = 'kidiq2.stan', data = dataList, iter = 100, chains = 1)
+BM01a <- stan(file = 'kidiq2.stan', data = dataList, iter = 100, chains = 1) # 试跑一下
 BM01a <- stan(fit = BM01a, data = dataList, iter = 2000, chains = 4, cores = 4)
 print(BM01a)
 #pairs(BM01a)
@@ -40,6 +40,7 @@ yhat <- extract(BM01a, pars="yhat")$yhat
 dim(yhat)
 
 
+##  RHAT 要小于1.05 n_eff要大于300
 
 
 # standardization
