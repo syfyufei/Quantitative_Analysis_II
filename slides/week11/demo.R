@@ -86,7 +86,7 @@ sd(att)
 
 
 library(MatchIt)
-data(lalonde)
+# data(lalonde)
 # 1对1最近邻匹配法
 set.seed(1)
 mNearest1v1 <- matchit(treat ~ age + educ + black + hisp + married +
@@ -121,7 +121,7 @@ mDataTreated <- match.data(mNearest1v1, group = "treat")
 mDataControl <- match.data(mNearest1v1,  group = "control")
 library(Zelig)
 z.out <- zelig(re78 ~ treat + age + educ + black + hisp + nodegr +
-married + re74 + re75, data = mData, model = "ls")
+married + re74 + re75, data = mData, model = "ls")   # ate,通常只关心att
 xTreated <- setx(z.out, treat = 1)
 xControl <- setx(z.out, treat = 0)
 ATE <- sim(z.out, x = xControl, x1 = xTreated)
@@ -129,5 +129,5 @@ ATE <- sim(z.out, x = xControl, x1 = xTreated)
 library(rbounds)
 YTreated <- mData$re78[mData$treat==1]
 YControl <- mData$re78[mData$treat==0]
-psens(x = YControl, y=YTreated, Gamma = 4, GammaInc = 0.1)
-hlsens(x = YControl, y=YTreated, Gamma = 4, GammaInc = 0.1)
+psens(x = YControl, y=YTreated, Gamma = 4, GammaInc = 0.1)  # 敏感性检验 0.05 下界，大于二显著
+hlsens(x = YControl, y=YTreated, Gamma = 4, GammaInc = 0.1) # 敏感性检验 0  大于二包含零
