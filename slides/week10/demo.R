@@ -7,7 +7,7 @@ m1 <- glm(treat ~ age + educ + black + hisp + married +
   nodegr + re74 + re75, family = binomial, data = lalonde)
 
 pm1 <- Match(Y = re78, Tr = treat, X = m1$fitted, estimand = "ATT", M = 1, replace = TRUE)
-summary(pm1)  #最近邻匹配法 显著 样本可以重复使用
+summary(pm1)  #最近邻匹配法 显著 样本可以重复使用 x是倾向值 ATT ATC ATE M = 一对一还是一对多
 pm2 <- Match(Y = re78, Tr = treat, X = m1$fitted, estimand = "ATT", M = 1, replace = FALSE)
 summary(pm2) #最近邻匹配法 显著 样本不可以重复使用
 
@@ -138,6 +138,6 @@ hlsens(x = YControl, y=YTreated, Gamma = 2, GammaInc = 0.1)
 
 # 怎么做。
 # 1. 选择replace
-# 2. 考虑放进一个
-# 即使到1.7 1.8才过关。如果收入膨胀1.8在现实中是否合理。
+# 2. 考虑放进一个机器学习的方法or gary king optinal match 做备选方案
+# 即使到1.7 1.8仍不过关。如果收入膨胀1.8在现实中是否合理。
 # Match包标准误仍需要bootstrap
