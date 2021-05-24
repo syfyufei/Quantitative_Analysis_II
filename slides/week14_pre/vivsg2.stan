@@ -20,8 +20,8 @@ transformed parameters {
   vector[N] yhat;
   matrix[J,2] mu;
 
-  mu[,1] = gA0 + gA1 * u;  # u即刚刚的u.all
-  mu[,2] = gB0 + gB1 * u;  #
+  mu[,1] = gA0 + gA1 * u;
+  mu[,2] = gB0 + gB1 * u;
 
   for (i in 1:N){
     yhat[i] = Beta[county[i],1] + Beta[county[i],2] * x[i];

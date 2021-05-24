@@ -26,39 +26,24 @@ dat <- cbind.data.frame(y, y2, x, u=u.all, group)
 write.dta(dat, file="dat.dta")
 
 
-M0 <- lmer(y ~ 1 + (1|group))  # vary intercept
+M0 <- lmer(y ~ 1 + (1|group))
 display(M0)
-library(sjstats)
-icc(M0)  # 看下面那个icc。不算太高也不算太低，0.3为阈值
-fixef(M0)   # 第一层系数
-range(M0) # 第二层
-coef(M0) # 两层相加
+library(performace)
+icc(M0)
 
-M1 <- lmer(y ~ x + (1|group))  # 加入自变量
+M1 <- lmer(y ~ x + (1|group))
 display(M1)
-icc(M1)
 
 M2 <- lmer(y ~ x + (1+x|group))
 display(M2)
-icc(M2)
 
-M3 <- lmer(y ~ x + u.all + (1+x|group))  # 令人难懂
+M3 <- lmer(y ~ x + u.all + (1+x|group))
 display(M3)
-icc(M3)
-
-
-library(rstanarm)
-options(mc.cores = parallel::detectCores())
-BM3 <- stan_lmer(y ~ x + u.all + (1+x|group))
-summary(BM3)
-print(BM3)  # 估计出0.34
-
-
 
 coef(M1)
 fixef(M1)
 ranef(M1)
-se.fixef(M1) # effcet的se
+se.fixef(M1)
 se.ranef(M1)
 se.coef(M1)
 
@@ -112,7 +97,7 @@ quantile(y.tilde, probs=c(0.025,0.25,0.5,0.75,0.975))
 
 
 M4 <- glmer(y2 ~ x + (1 + x | group), family=binomial("logit"))
-display(M4)   # bionary  用 glmer
+display(M4)
 
 
 
@@ -120,13 +105,14 @@ radon <- read.dta("radon.dta")
 N <- dim(radon)[1]
 J <- length(unique(radon$county))
 dataList <- with(radon, list("y" = y, "county" = county, "N" = N, "J" = J, "x" = x))
-
 M06 <- lmer(y ~ x + (1+x|county), data=radon)
 summary(M06)
 
 library(rstan)
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
+Sys.setenv(LOCAL_CPPFLAGS = '-march=corei7 -mtune=corei7')
+
 
 
 BM06 <- stan(file = 'vivs.stan', data = dataList, iter = 100, chains = 1)

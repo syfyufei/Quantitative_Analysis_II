@@ -1,4 +1,3 @@
-# 1与2差别在于采用distribution的方法估计
 data {
   int<lower=0> N;
   int<lower=0> J;

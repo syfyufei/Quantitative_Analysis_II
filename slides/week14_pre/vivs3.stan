@@ -1,4 +1,3 @@
-# 1与2差别在于采用distribution的方法估计
 data {
   int<lower=0> N;
   int<lower=0> J;
@@ -11,20 +10,16 @@ parameters {
   real<lower=0> sigma;
   vector<lower=0>[2] sigmaB;
   vector[2] Beta[J];
-  corr_matrix[2] Omega;
-}
-transformed parameters{
-  cov_matrix[2] S;  
-  S = quad_form_diag(Omega, sigmaB);
-  
+  cholesky_factor_corr[2] Lcorr;
 }
 model {
   vector[N] yhat;
-
+    
   mu ~ normal(0, 100);
   sigma ~ cauchy(0,10);
-  Omega ~ lkj_corr(2);
-  Beta ~ multi_normal(mu, S);
+  
+  Lcorr ~ lkj_corr_cholesky(1);
+  Beta ~ multi_normal_cholesky(mu, diag_pre_multiply(sigmaB, Lcorr));
   
   
   for (i in 1:N){
@@ -32,4 +27,10 @@ model {
   }
 
   y ~ normal(yhat, sigma);
+}
+generated quantities {
+  corr_matrix[2] Omega;
+  cov_matrix[2] S;
+  Omega = multiply_lower_tri_self_transpose(Lcorr);
+  S = quad_form_diag(Omega, sigmaB); 
 }
