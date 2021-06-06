@@ -1,0 +1,364 @@
+---
+title: "民主价值观与人民民主——基于ABS数据的实证分析"
+author:
+  - 吴温泉
+documentclass: ctexart
+keywords:
+  - 批判性公民 民主价值观 政治态度 亚洲民主动态调查 
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+---
+
+# Introduction
+
+- 物质主义社会，后物质主义社会。生存价值观，自我表达价值观(Ronald　Inglehart and Christian Welzel, 2005)
+- 批判性公民: 高民主价值观，同时低体制评价(Pippa Norris, 1999)
+
+# Literature Review 
+- 中国的经济发展、政治信任与批判性公民(王正绪, 2005；王正绪 and 游宇, 2011)
+- 中国批判性公民的测量(马得勇 and 王志浩, 2017)
+- 台湾地区对批判性公民的研究(张佑宗,2011; 黄信豪, 2014; 黄新豪, 2020)
+
+# Data 
+
+- 亚洲民主动态调查/亚洲晴雨表(The Asian Barometer Survey)
+- 2002, 2008, 2011, 2016
+
+# Measurement
+- 人民民主 V.S. 自由民主。民主概念的模糊导致在我国对民主实施情形不满意的民众似乎只能是自由民主式价值观。
+- 政治信任 V.S. 政治支持
+- 民主满意度：总体而言，您对民主在我国实施的情形是否满意？（On the whole, how satisfied or dissatisfied are you with the way democracy works in our country）
+- 体制认同：即使我们的政治制度有这样那样的问题，人民也应当支持.（Whatever its faults maybe, our form of government is still the best for us.）
+
+# Analysis
+```{r}
+setwd('E:/SynologyDrive/Github/Quantitative_Analysis_II')
+library(tidyverse)
+library(haven)
+library(arm)
+library(stargazer)
+
+# library(foreign)
+# dta1 <- read.table('./report/data/W1.dat',header = T,sep=" ")
+w1 <- read_sav('./report/data/W1.sav')
+w2 <- read_sav('./report/data/W2.sav')
+w3 <- read_sav('./report/data/W3.sav')
+w4 <- read_sav('./report/data/W4.sav')
+
+# select and bind -----
+# w1
+demo_w1 <- w1$q098
+# 1 'Not at all satisfied'
+# 2 'Not very satisfied'
+# 3 'Fairly satisfied'
+# 4 'Very satisfied'
+# 98 'Don't know'
+# 99 'No answer'
+
+support_w1 <- w1$q130
+# 1 'Strongly agree'
+# 2 'Somewhat agree'
+# 3 'Somewhat disagree'
+# 4 'Strongly disagree'
+# 98 'Don't know'
+# 99 'No answer'
+
+
+city_w1 <- w1$level3
+
+
+year_w1 <- w1$yrsurvey
+gender_w1 <- w1$se002
+# cohord_w1 <- w1$se003
+age_w1 <- w1$se003a
+edu_w1 <- w1$se005a # year
+region_w1 <- w1$se006
+dialect_w1 <- w1$se014
+income_w1 <- w1$se009
+plur_w1 <- w1$q135 #pluralism
+
+sub_w1 <- cbind.data.frame(demo_w1,
+                           support_w1,
+                           city_w1,
+                           year_w1,
+                           gender_w1,
+                           age_w1,
+                           edu_w1,
+                           region_w1,
+                           dialect_w1,
+                           income_w1,
+                           plur_w1)
+
+names(sub_w1) <- c('demo',
+                   'support',
+                   'city',
+                   'year',
+                   'gender',
+                   'age',
+                   'edu',
+                   'region',
+                   'dialect',
+                   'income',
+                   'plur')
+
+# w2
+demo_w2 <- w2$q098
+support_w2 <- w2$q130
+city_w2 <- w2$level3
+year_w2 <- rep(2008,length(demo_w2))
+gender_w2 <- w2$se002
+# cohord_w1 <- w1$se003
+age_w2 <- w2$se003a
+edu_w2 <- w2$se005a # year
+region_w2 <- w2$se006
+dialect_w2 <- w2$se014
+income_w2 <- w2$se009 
+plur_w2 <- w2$q135  #pluralism
+
+sub_w2 <- cbind.data.frame(demo_w2,
+                           support_w2,
+                           city_w2,
+                           year_w2,
+                           gender_w2,
+                           age_w2,
+                           edu_w2,
+                           region_w2,
+                           dialect_w2,
+                           income_w2,
+                           plur_w2)
+
+names(sub_w2) <- c('demo',
+                   'support',
+                   'city',
+                   'year',
+                   'gender',
+                   'age',
+                   'edu',
+                   'region',
+                   'dialect',
+                   'income',
+                   'plur')
+
+# w3
+demo_w3 <- w3$q098
+support_w3 <- w3$q130
+city_w3 <- w3$level3
+year_w3 <- rep(2011,length(demo_w3))
+gender_w3 <- w3$se002
+# cohord_w1 <- w1$se003
+age_w3 <- w3$se003a
+edu_w3 <- w3$se005a # year
+region_w3 <- w3$se006
+dialect_w3 <- w3$se014
+income_w3 <- w3$se009 
+plur_w3 <- w3$q135  #pluralism
+
+sub_w3 <- cbind.data.frame(demo_w3,
+                           support_w3,
+                           city_w3,
+                           year_w3,
+                           gender_w3,
+                           age_w3,
+                           edu_w3,
+                           region_w3,
+                           dialect_w3,
+                           income_w3,
+                           plur_w3)
+
+names(sub_w3) <- c('demo',
+                   'support',
+                   'city',
+                   'year',
+                   'gender',
+                   'age',
+                   'edu',
+                   'region',
+                   'dialect',
+                   'income',
+                   'plur')
+
+# w4
+demo_w4 <- w4$q92 # diff
+support_w4 <- w4$q85 # diff
+city_w4 <- w4$level
+year_w4 <- rep(2016,length(demo_w4))
+gender_w4 <- w4$se2
+# cohord_w1 <- w1$se003
+age_w4 <- w4$se3_2
+edu_w4 <- w4$se5a # year
+region_w4 <- w4$se6
+dialect_w4 <- w4$se11
+income_w4 <- w4$se14 
+plur_w4 <- w4$q144  #pluralism
+
+# demo_w3 <- w3$q098
+# support_w3 <- w3$q130
+# city_w3 <- w3$level3
+# year_w3 <- rep(2011,length(demo_w3))
+# gender_w3 <- w3$se002
+# # cohord_w1 <- w1$se003
+# age_w3 <- w3$se003a
+# edu_w3 <- w3$se005a # year
+# region_w3 <- w3$se006
+# dialect_w3 <- w3$se014
+# income_w3 <- w3$se009 
+# plur_w3 <- w3$q135  #pluralism
+
+sub_w4 <- cbind.data.frame(demo_w4,
+                           support_w4,
+                           city_w4,
+                           year_w4,
+                           gender_w4,
+                           age_w4,
+                           edu_w4,
+                           region_w4,
+                           dialect_w4,
+                           income_w4,
+                           plur_w4)
+
+names(sub_w4) <- c('demo',
+                   'support',
+                   'city',
+                   'year',
+                   'gender',
+                   'age',
+                   'edu',
+                   'region',
+                   'dialect',
+                   'income',
+                   'plur')
+
+
+dat <- bind_rows(sub_w1, sub_w2, sub_w3, sub_w4)
+
+
+# clean ----
+attach(dat)
+dat$demo <- ifelse(dat$demo == 9 | dat$demo == 8,
+                   NA_real_, dat$demo)
+
+dat$support <- ifelse(dat$support == 9 |
+                        dat$support == 8 |
+                        dat$support == 7, 
+                   NA_real_, dat$support)
+
+dat$city <- ifelse(dat$city == -1, 
+                   NA_real_, dat$city)
+
+
+dat$age <- ifelse(dat$age == -1 |
+                   dat$age == 99, 
+                   NA_real_, dat$age)
+
+dat$edu <- ifelse(dat$edu == -1 |
+                    dat$edu == 99, 
+                  NA_real_, dat$edu)
+
+dat$year <- as.integer(dat$year)
+
+
+dat <- dat %>%  
+  mutate(religion = case_when(
+    region == 10 & year == 2011 ~ 8,
+    region == 20 ~ 9,
+    region == 40 ~ 7,
+    region == 60 ~ 6,
+    region == 61 ~ 3,
+    region == 70 ~ 3,
+    region == 76 ~ 2,
+    region == 80 ~ 10,
+    region == 90 ~ 10,
+    region == 98 ~ NA_real_,
+  ))  # 99 regect answer
+
+
+dat$dialect <- ifelse(dat$dialect == 9 |
+                        dat$dialect == 8 |  
+                        dat$dialect == 99,
+                      NA_real_, dat$dialect)
+
+dat$income <- ifelse(dat$income == 97 |
+                        dat$income == 98 |  
+                        dat$income == 99,
+                      NA_real_, dat$income)
+
+
+dat$plur <- ifelse(dat$plur == 8 |  
+                       dat$plur == 9,
+                     NA_real_, dat$plur)
+
+dat <- na.exclude(dat)
+length(dat$demo)
+
+# descirbe ----
+stargazer(dat)
+
+# # plot0
+# ggplot(data = dat) +
+#   geom_point(aes(x = demo, y = age, color = as.factor(demo)),
+#              position = position_jitter())  +
+#   geom_smooth(aes(x = demo, y = age),
+#               method = 'auto', color = 'red', se = T)
+
+# plot1 
+ggplot(data = dat) +
+  geom_boxplot(aes(x = as.factor(demo), y = age, fill = as.factor(demo))) 
+
+ggplot(data = dat) +
+  geom_boxplot(aes(x = as.factor(demo), y = edu, fill = as.factor(demo))) 
+
+# plot2
+ggplot(data = dat) +
+  geom_point(aes(x = demo, y = support, color = as.factor(demo)),
+             position = position_jitter()) 
+
+# plot3
+ggplot(data = dat) +
+  geom_point(aes(x = demo, y = support, color = as.factor(demo)),
+             position = position_jitter())  
+
+# plot4
+ggplot(data = dat) +
+  geom_point(aes(x = as.factor(demo), y = plur, color = as.factor(demo)),
+             position = position_jitter()) 
+
+ggplot(data = dat) +
+  geom_point(aes(x = as.factor(demo), y = as.factor(religion), color = as.factor(demo)),
+             position = position_jitter()) 
+
+ggplot(data = dat) +
+  geom_point(aes(x = as.factor(demo), y = income, color = as.factor(demo)),
+             position = position_jitter()) 
+# regression----
+dat <- dat %>% mutate(citizen = case_when(
+  demo < 3 & support < 3 ~ 1,
+  demo > 2 ~ 0,
+  support > 2 ~ 0
+))
+
+dat2 <- dat
+
+dat2$citizen <- as.factor(dat2$citizen)
+dat2$city   <- as.factor(dat2$city)
+dat2$year   <- as.factor(dat2$year)
+dat2$gender <- as.factor(dat2$gender)
+dat2$religion <- as.factor(dat2$religion)
+dat2$dialect <- as.factor(dat2$dialect)
+dat2$income <- as.factor(dat2$income)
+dat2$plur <- as.factor(dat2$plur)
+  
+M0 <- glmer(citizen ~ 1 + (1|gender) + (1|city) + age + (1|income) +
+             edu + (1|religion) + (1|dialect) + (1|year) + plur,
+            family = binomial(link = 'logit'), data = dat2)
+stargazer(M0)
+
+```
+
+# Further work
+- 对民主价值观的澄清
+- 清晰的假设
+- 模型的选择（glmer，glmm，MCMCglmm）
+
